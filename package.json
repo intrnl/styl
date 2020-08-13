@@ -1,0 +1,26 @@
+{
+	"name": "@intrnl/styl",
+	"description": "Lightweight CSS-in-JS runtime",
+	"version": "0.2.1",
+	"license": "MIT",
+	"sideEffects": false,
+	"source": "src/index.js",
+	"main": "dist/styl.js",
+	"module": "dist/styl.mjs",
+	"files": [
+		"dist/",
+		"README.md"
+	],
+	"author": {
+		"name": "intrnl",
+		"email": "intrnl28+node@gmail.com",
+		"url": "https://intrnl.github.io"
+	},
+	"scripts": {
+		"build": "rollup -c",
+		"prepublishOnly": "pnpm run build"
+	},
+	"devDependencies": {
+		"rollup": "^2.23.1"
+	}
+}
