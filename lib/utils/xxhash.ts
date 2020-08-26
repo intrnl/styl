@@ -7,13 +7,9 @@ let PRIME32_4 = 668265263;
 let PRIME32_5 = 374761393;
 
 
-let utf8Encoder = new TextEncoder('utf-8');
+let utf8Encoder = new TextEncoder;
 
-/**
- * @param {Uint8Array | string} buffer
- * @param {number} [seed]
- */
-export function xxhash (buffer, seed = 0) {
+export function xxhash (buffer: Uint8Array | string, seed = 0) {
   if (typeof buffer === 'string')
 	buffer = utf8Encoder.encode(buffer);
 

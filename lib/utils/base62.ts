@@ -1,13 +1,14 @@
 let charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_';
 
-export function encode (n) {
+
+export function encode (n: number) {
 	if (n === 0) return '0';
 
-	let res = '';
+	let str = '';
 	while (n > 0) {
-		res = charset[n % 64] + res;
+		str = charset[n % 64] + str;
 		n = ~~(n / 64);
 	}
 
-	return res;
+	return str;
 }

@@ -1,26 +1,31 @@
 {
 	"name": "@intrnl/styl",
-	"description": "Lightweight CSS-in-JS runtime",
-	"version": "0.2.2",
+	"description": "TypeScript library template",
+	"version": "0.2.0",
 	"license": "MIT",
-	"sideEffects": false,
-	"source": "src/index.js",
+	"author": "intrnl",
+	"repository": {
+		"url": "https://github.com/intrnl/styl"
+	},
+	"source": "lib/index.ts",
 	"main": "dist/styl.js",
 	"module": "dist/styl.mjs",
-	"files": [
-		"dist/",
-		"README.md"
-	],
-	"author": {
-		"name": "intrnl",
-		"email": "intrnl28+node@gmail.com",
-		"url": "https://intrnl.github.io"
-	},
+	"types": "types/index.d.ts",
+	"sideEffects": false,
 	"scripts": {
-		"build": "rollup -c",
+		"build": "pnpm run build:lib & pnpm run build:types",
+		"build:lib": "rollup -c",
+		"build:types": "tsc",
 		"prepublishOnly": "pnpm run build"
 	},
 	"devDependencies": {
-		"rollup": "^2.23.1"
+		"@rollup/plugin-commonjs": "^15.0.0",
+		"@rollup/plugin-node-resolve": "^9.0.0",
+		"esbuild": "^0.6.27",
+		"rollup": "^2.26.5",
+		"rollup-plugin-esbuild": "^2.4.2"
+	},
+	"dependencies": {
+		"csstype": "^3.0.3"
 	}
 }
