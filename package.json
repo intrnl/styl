@@ -12,6 +12,11 @@
 	"module": "dist/styl.mjs",
 	"types": "types/index.d.ts",
 	"sideEffects": false,
+	"files": [
+		"dist/",
+		"types/",
+		"README.md"
+	],
 	"scripts": {
 		"build": "pnpm run build:lib & pnpm run build:types",
 		"build:lib": "rollup -c",
