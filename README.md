@@ -1,6 +1,13 @@
-# styl
+# `styl`
 
 Lightweight CSS-in-JS runtime
+
+## Installation
+
+- Install it with your package manager of choice
+  - npm: `npm i @intrnl/styl`
+  - pnpm: `pnpm i @intrnl/styl`
+  - yarn: `yarn add @intrnl/styl`
 
 ## Usage
 
