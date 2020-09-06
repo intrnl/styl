@@ -1,11 +1,11 @@
 import { encode } from './base62';
-import { xxhash } from './xxhash';
+import { cyrb53 } from './cyrb53';
 
 
 let RE_UPPERCASE = /[A-Z]/g;
 
 export function hash (value: any) {
-	return encode(xxhash(JSON.stringify(value)));
+	return encode(cyrb53(JSON.stringify(value)));
 }
 
 export function toKebab (str: string) {
