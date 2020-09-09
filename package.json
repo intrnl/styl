@@ -1,6 +1,6 @@
 {
 	"name": "@intrnl/styl",
-	"description": "TypeScript library template",
+	"description": "Lightweight CSS-in-JS runtime",
 	"version": "0.3.2",
 	"license": "MIT",
 	"author": "intrnl",
