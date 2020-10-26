@@ -23,14 +23,10 @@
 		"build:types": "tsc",
 		"prepublishOnly": "pnpm run build"
 	},
-	"devDependencies": {
-		"@rollup/plugin-commonjs": "^15.0.0",
-		"@rollup/plugin-node-resolve": "^9.0.0",
-		"esbuild": "^0.6.27",
-		"rollup": "^2.26.5",
-		"rollup-plugin-esbuild": "^2.4.2"
-	},
 	"dependencies": {
 		"csstype": "^3.0.3"
+	},
+	"devDependencies": {
+		"@intrnl/bundl": "^0.1.8"
 	}
 }
