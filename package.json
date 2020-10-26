@@ -27,6 +27,7 @@
 		"csstype": "^3.0.3"
 	},
 	"devDependencies": {
-		"@intrnl/bundl": "^0.1.8"
+		"@intrnl/bundl": "^0.1.8",
+		"typescript": "^4.0.3"
 	}
 }
