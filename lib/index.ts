@@ -28,7 +28,7 @@ export type KeyframesRule = {
 export type ComplexStyleRules = StyleRule | Array<string | StyleRule>;
 
 export function createVar () {
-	return `var(--${var_prefix}${nanoid(8)})`;
+	return 'var(--' + var_prefix + nanoid(8) + ')';
 }
 
 export function style (args: ComplexStyleRules) {
@@ -126,7 +126,7 @@ function compile_css (
 			let idx = property.indexOf(',');
 			let variable = property.slice(4, idx);
 
-			inner_styles += `${variable}:${value};`;
+			inner_styles += variable + ':' + value + ';';
 		}
 		else {
 			if (typeof value === 'number' && !nondimensional_re.test(property)) {
@@ -134,18 +134,18 @@ function compile_css (
 				value += 'px';
 			}
 
-			inner_styles += `${toKebab(property)}:${value};`;
+			inner_styles += toKebab(property) + ':' + value + ';';
 		}
 	}
 
 	if (inner_styles) {
-		inner_styles = `${id}{${inner_styles}}`;
+		inner_styles = id + '{' + inner_styles + '}';
 	}
 
 	inner_styles += outer_styles;
 
 	if (inner_styles && outer) {
-		inner_styles = `${outer}{${inner_styles}}`;
+		inner_styles = outer + '{' + inner_styles + '}';
 	}
 
 	return inner_styles;
@@ -154,17 +154,23 @@ function compile_css (
 function compile_keyframes (id: string, decl: KeyframesRule) {
 	let styles = '';
 
-	for (let t in decl) {
-		let props = decl[t];
+	for (let transition in decl) {
+		let props = decl[transition];
 		let inner_styles = '';
 
-		for (let k in props) {
-			let v = (props as any)[k];
-			inner_styles += `${toKebab(k)}:${v};`;
+		for (let property in props) {
+			let value = (props as any)[property];
+
+			if (typeof value === 'number' && !nondimensional_re.test(property)) {
+				// @ts-expect-error
+				value += 'px';
+			}
+
+			inner_styles += toKebab(property) + ':' + value + ';';
 		}
 
-		styles += `${t}{${inner_styles}}`;
+		styles += transition + '{' + inner_styles + '}';
 	}
 
-	return `@keyframes ${id}{${styles}}`;
+	return '@keyframes ' + id + '{' + styles + '}';
 }
