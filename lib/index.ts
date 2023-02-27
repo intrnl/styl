@@ -89,19 +89,12 @@ export function extract () {
 }
 
 function getSheet (target?: Element) {
-	try {
-		if (!target) {
-			target = document.head;
-		}
+	if (typeof window === 'object') {
+		return (target ? target.querySelector('#' + sheet_id) : (window as any)[sheet_id])
+			|| Object.assign((target || document.head).appendChild(document.createElement('style')), { id: sheet_id });
+	}
 
-		return target.querySelector('#' + sheet_id)
-			|| target.appendChild(Object.assign(document.createElement('style'), {
-				id: sheet_id,
-			}));
-	}
-	catch {
-		return ssr;
-	}
+	return target || ssr;
 }
 
 function compile_css (
