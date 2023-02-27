@@ -10,15 +10,36 @@ let keyframes_prefix = 'k';
 
 let ssr = { textContent: '' };
 
-export type CSSDeclaration = {
+export type StyleRule = {
 	[selector: string]: CSSProperties;
 } & CSSProperties;
 
-export type KeyframesDeclaration = {
+export type KeyframesRule = {
 	[transition: string]: CSSProperties;
 };
 
-export function css (decl: CSSDeclaration) {
+export type ComplexStyleRules = string | StyleRule;
+
+export function style (...args: ComplexStyleRules[]) {
+	let result = '';
+
+	for (let idx = 0, len = args.length; idx < len; idx++) {
+		let arg = args[idx];
+
+		result && (result += ' ');
+
+		if (typeof arg === 'string') {
+			result += arg;
+		}
+		else {
+			result += css(arg);
+		}
+	}
+
+	return result;
+}
+
+export function css (decl: StyleRule) {
 	let id = css_prefix + nanoid(8);
 	let style = compile_css(id, decl);
 
@@ -26,7 +47,7 @@ export function css (decl: CSSDeclaration) {
 	return id;
 }
 
-export function keyframes (decl: KeyframesDeclaration) {
+export function keyframes (decl: KeyframesRule) {
 	let id = keyframes_prefix + nanoid(8);
 	let style = compile_keyframes(id, decl);
 
@@ -65,7 +86,7 @@ function getSheet (target?: Element) {
 
 function compile_css (
 	id: string,
-	decl: CSSDeclaration,
+	decl: StyleRule,
 	inner?: string | 0,
 	outer?: string | 0,
 ) {
@@ -78,10 +99,10 @@ function compile_css (
 		// & is inner
 		// @ is outer
 		if (k[0] == '&') {
-			outer_styles += compile_css(id, v as CSSDeclaration, k.slice(1), 0);
+			outer_styles += compile_css(id, v as StyleRule, k.slice(1), 0);
 		}
 		else if (k[0] == '@') {
-			outer_styles += compile_css(id, v as CSSDeclaration, 0, k);
+			outer_styles += compile_css(id, v as StyleRule, 0, k);
 		}
 		else {
 			inner_styles += `${toKebab(k)}:${v};`;
@@ -96,7 +117,7 @@ function compile_css (
 	return inner_styles + outer_styles;
 }
 
-function compile_keyframes (id: string, decl: CSSDeclaration) {
+function compile_keyframes (id: string, decl: StyleRule) {
 	let styles = '';
 
 	for (let t in decl) {
