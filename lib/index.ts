@@ -1,55 +1,72 @@
 import type { Properties as CSSProperties } from 'csstype';
-import { toKebab } from './utils';
+import { toKebab } from './utils.js';
 
 import { nanoid } from 'nanoid/non-secure';
 
 let sheet_id = '_styl';
 
+let var_prefix = 'v';
 let css_prefix = 'c';
 let keyframes_prefix = 'k';
 
 let ssr = { textContent: '' };
 
 export type StyleRule = {
-	[selector: string]: CSSProperties;
+	[selector: `var(${string})`]: string;
+	[selector: `${string}&${string}`]: StyleRule;
+	[selector: `@${string}`]: StyleRule;
 } & CSSProperties;
 
 export type KeyframesRule = {
 	[transition: string]: CSSProperties;
 };
 
-export type ComplexStyleRules = string | StyleRule;
+export type ComplexStyleRules = StyleRule | Array<string | StyleRule>;
 
-export function style (...args: ComplexStyleRules[]) {
+export function createVar () {
+	return `var(--${var_prefix}${nanoid(8)})`;
+}
+
+export function style (args: ComplexStyleRules) {
 	let result = '';
 
-	for (let idx = 0, len = args.length; idx < len; idx++) {
-		let arg = args[idx];
+	if (Array.isArray(args)) {
+		for (let idx = 0, len = args.length; idx < len; idx++) {
+			let arg = args[idx];
 
-		result && (result += ' ');
+			result && (result += ' ');
 
-		if (typeof arg === 'string') {
-			result += arg;
+			if (typeof arg === 'string') {
+				result += arg;
+			}
+			else {
+				result += css(arg);
+			}
 		}
-		else {
-			result += css(arg);
-		}
+	}
+	else {
+		return css(args);
 	}
 
 	return result;
 }
 
-export function css (decl: StyleRule) {
+export function globalStyle (selector: string, rule: StyleRule) {
+	let style = compile_css(selector, rule);
+	appendStyle(style);
+}
+
+function css (rule: StyleRule) {
 	let id = css_prefix + nanoid(8);
-	let style = compile_css(id, decl);
+	let style = compile_css('.' + id, rule);
 
 	appendStyle(style);
 	return id;
 }
 
-export function keyframes (decl: KeyframesRule) {
+export function keyframes (rule: KeyframesRule) {
 	let id = keyframes_prefix + nanoid(8);
-	let style = compile_keyframes(id, decl);
+	let style = compile_keyframes(id, rule);
 
 	appendStyle(style);
 	return id;
@@ -87,29 +104,32 @@ function getSheet (target?: Element) {
 function compile_css (
 	id: string,
 	decl: StyleRule,
-	inner?: string | 0,
 	outer?: string | 0,
 ) {
 	let inner_styles = '';
 	let outer_styles = '';
 
-	for (let k in decl) {
-		let v = decl[k];
+	for (let property in decl) {
+		let value: any = decl[property as any];
 
-		// & is inner
-		// @ is outer
-		if (k[0] == '&') {
-			outer_styles += compile_css(id, v as StyleRule, k.slice(1), 0);
+		if (property.includes('&')) {
+			outer_styles += compile_css(property.replaceAll('&', id), value as StyleRule, 0);
 		}
-		else if (k[0] == '@') {
-			outer_styles += compile_css(id, v as StyleRule, 0, k);
+		else if (property[0] == '@') {
+			outer_styles += compile_css(id, value as StyleRule, property);
+		}
+		else if (property[0] === 'v' && property[1] === 'a' && property[3] === '(') {
+			let idx = property.indexOf(',');
+			let variable = property.slice(4, idx);
+
+			inner_styles += `${variable}:${value};`;
 		}
 		else {
-			inner_styles += `${toKebab(k)}:${v};`;
+			inner_styles += `${toKebab(property)}:${value};`;
 		}
 	}
 
-	inner_styles = `.${id}${inner || ''}{${inner_styles}}`;
+	inner_styles = `${id}{${inner_styles}}`;
 	if (outer) {
 		inner_styles = `${outer}{${inner_styles}}`;
 	}
@@ -117,7 +137,7 @@ function compile_css (
 	return inner_styles + outer_styles;
 }
 
-function compile_keyframes (id: string, decl: StyleRule) {
+function compile_keyframes (id: string, decl: KeyframesRule) {
 	let styles = '';
 
 	for (let t in decl) {

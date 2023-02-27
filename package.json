@@ -1,4 +1,5 @@
 {
+	"type": "module",
 	"name": "@intrnl/styl",
 	"description": "Lightweight CSS-in-JS runtime",
 	"version": "0.3.3",
