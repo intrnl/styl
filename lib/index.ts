@@ -88,13 +88,9 @@ export function extract () {
 	return out;
 }
 
-function getSheet (target?: Element) {
-	if (typeof window === 'object') {
-		return (target ? target.querySelector('#' + sheet_id) : (window as any)[sheet_id])
-			|| Object.assign((target || document.head).appendChild(document.createElement('style')), { id: sheet_id });
-	}
-
-	return target || ssr;
+function getSheet () {
+	return (window as any)[sheet_id]
+		|| Object.assign(document.head.appendChild(document.createElement('style')), { id: sheet_id });
 }
 
 function compile_css (
