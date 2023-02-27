@@ -1,7 +1,7 @@
 // cyrb53 hash function
 // https://stackoverflow.com/a/52171480
 
-let imul = /*#__PURE__*/Math.imul;
+let imul = /*#__PURE__*/ Math.imul;
 
 export function cyrb53 (str: string, seed = 0) {
 	let h1 = 0xdeadbeef ^ seed;

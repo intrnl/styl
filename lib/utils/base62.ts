@@ -1,8 +1,9 @@
 let charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_';
 
-
 export function encode (n: number) {
-	if (n === 0) return '0';
+	if (n === 0) {
+		return '0';
+	}
 
 	let str = '';
 	while (n > 0) {

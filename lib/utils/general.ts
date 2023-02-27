@@ -1,7 +1,6 @@
 import { encode } from './base62';
 import { cyrb53 } from './cyrb53';
 
-
 let RE_UPPERCASE = /[A-Z]/g;
 
 export function hash (value: any) {
