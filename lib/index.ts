@@ -1,5 +1,7 @@
 import type { Properties as CSSProperties } from 'csstype';
-import { hash, toKebab } from './utils/general';
+import { toKebab } from './utils';
+
+import { nanoid } from 'nanoid/non-secure';
 
 let sheet_id = '_styl';
 
@@ -7,7 +9,6 @@ let css_prefix = 'c';
 let keyframes_prefix = 'k';
 
 let ssr = { textContent: '' };
-let cache: Record<string, number> = {};
 
 export type CSSDeclaration = {
 	[selector: string]: CSSProperties;
@@ -18,35 +19,24 @@ export type KeyframesDeclaration = {
 };
 
 export function css (decl: CSSDeclaration) {
-	let id = css_prefix + hash(decl);
-	if (cache[id]) {
-		return id;
-	}
-
+	let id = css_prefix + nanoid(8);
 	let style = compile_css(id, decl);
-	let sheet = getSheet();
-	if (!sheet.textContent!.includes(style)) {
-		sheet.textContent += style;
-	}
 
-	cache[id] = 1;
+	appendStyle(style);
 	return id;
 }
 
 export function keyframes (decl: KeyframesDeclaration) {
-	let id = keyframes_prefix + hash(decl);
-	if (cache[id]) {
-		return id;
-	}
-
+	let id = keyframes_prefix + nanoid(8);
 	let style = compile_keyframes(id, decl);
-	let sheet = getSheet();
-	if (!sheet.textContent!.includes(style)) {
-		sheet.textContent += style;
-	}
 
-	cache[id] = 1;
+	appendStyle(style);
 	return id;
+}
+
+function appendStyle (style: string) {
+	let sheet = getSheet();
+	sheet.textContent += style;
 }
 
 export function extract () {
@@ -54,8 +44,6 @@ export function extract () {
 	let out = sheet.textContent;
 
 	sheet.textContent = '';
-	cache = {};
-
 	return out;
 }
 
@@ -123,7 +111,5 @@ function compile_keyframes (id: string, decl: CSSDeclaration) {
 		styles += `${t}{${inner_styles}}`;
 	}
 
-	styles = `@keyframes ${id}{${styles}}`;
-
-	return styles;
+	return `@keyframes ${id}{${styles}}`;
 }
