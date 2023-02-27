@@ -62,9 +62,8 @@ export function globalStyle (selector: string, rule: StyleRule) {
 
 function css (rule: StyleRule) {
 	let id = css_prefix + nanoid(8);
-	let style = compile_css('.' + id, rule);
 
-	appendStyle(style);
+	globalStyle('.' + id, rule);
 	return id;
 }
 
