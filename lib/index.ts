@@ -142,9 +142,9 @@ function compile_css (
 		inner_styles = `${id}{${inner_styles}}`;
 	}
 
-	inner_styles += outer_styles
+	inner_styles += outer_styles;
 
-	if (outer) {
+	if (inner_styles && outer) {
 		inner_styles = `${outer}{${inner_styles}}`;
 	}
 
