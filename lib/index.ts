@@ -3,6 +3,10 @@ import { toKebab } from './utils.js';
 
 import { nanoid } from 'nanoid/non-secure';
 
+// https://github.com/preactjs/preact/issues/2607
+let nondimensional_re =
+	/^(-|f[lo].*[^se]$|g.{5,}[^ps]$|z|o[pr]|(W.{5})?[lL]i.*(t|mp)$|an|(bo|s).{4}Im|sca|m.{6}[ds]|ta|c.*[st]$|wido|ini)/;
+
 let sheet_id = '_styl';
 
 let var_prefix = 'v';
@@ -125,6 +129,11 @@ function compile_css (
 			inner_styles += `${variable}:${value};`;
 		}
 		else {
+			if (typeof value === 'number' && !nondimensional_re.test(property)) {
+				// @ts-expect-error
+				value += 'px';
+			}
+
 			inner_styles += `${toKebab(property)}:${value};`;
 		}
 	}
