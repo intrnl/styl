@@ -138,12 +138,17 @@ function compile_css (
 		}
 	}
 
-	inner_styles = `${id}{${inner_styles}}`;
+	if (inner_styles) {
+		inner_styles = `${id}{${inner_styles}}`;
+	}
+
+	inner_styles += outer_styles
+
 	if (outer) {
 		inner_styles = `${outer}{${inner_styles}}`;
 	}
 
-	return inner_styles + outer_styles;
+	return inner_styles;
 }
 
 function compile_keyframes (id: string, decl: KeyframesRule) {
