@@ -9,7 +9,7 @@
 		"url": "https://github.com/intrnl/styl"
 	},
 	"main": "dist/index.js",
-	"types": "types/index.d.ts",
+	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"files": [
 		"dist/",
