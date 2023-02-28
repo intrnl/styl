@@ -1,4 +1,6 @@
 import { type Properties } from 'csstype';
+
+import { getUid } from './scope.js';
 import { clone_object, get, to_kebab, walk_object } from './utils.js';
 
 // https://github.com/preactjs/preact/issues/2607
@@ -96,16 +98,12 @@ export type KeyframesRule = {
 
 export type ComplexStyleRule = StyleRule | Array<string | StyleRule>;
 
-function createId (prefix: string) {
-	return prefix + (uid++).toString(36);
+export function createContainer (debugName?: string) {
+	return getUid(debugName);
 }
 
-export function createContainer () {
-	return /*@__INLINE__*/ createId(container_prefix);
-}
-
-export function createVar () {
-	return ('var(--' + /*@__INLINE__*/ createId(var_prefix) + ')') as CSSVarFunction;
+export function createVar (debugName?: string) {
+	return ('var(--' + getUid(debugName) + ')') as CSSVarFunction;
 }
 
 export function fallbackVar (variable: CSSVarFunction, fallback: string) {
@@ -158,15 +156,15 @@ export function globalStyle (selector: string, rule: StyleRule) {
 	append_style(style);
 }
 
-function css (rule: StyleRule) {
-	let id = /*@__INLINE__*/ createId(css_prefix);
+function css (rule: StyleRule, debugName?: string) {
+	let id = getUid(debugName);
 
 	globalStyle('.' + id, rule);
 	return id;
 }
 
-export function keyframes (rule: KeyframesRule) {
-	let id = /*@__INLINE__*/ createId(keyframes_prefix);
+export function keyframes (rule: KeyframesRule, debugName?: string) {
+	let id = getUid(debugName);
 	let style = compile_keyframes(id, rule);
 
 	append_style(style);
@@ -235,15 +233,19 @@ export function createGlobalTheme (selector: string, arg2: any, arg3?: any) {
 
 export function createTheme<ThemeTokens extends Tokens> (
 	tokens: ThemeTokens,
+	debugName?: string,
 ): [name: string, vars: ThemeVars<ThemeTokens>];
 export function createTheme<ThemeContract extends ThemeVars> (
 	contract: ThemeContract,
 	tokens: MapLeafNodes<ThemeContract, string>,
+	debugName?: string,
 ): string;
-export function createTheme (arg1: any, arg2?: any): any {
-	let name = createId(theme_prefix);
+export function createTheme (arg1: any, arg2?: any, arg3?: string): any {
+	let has_contract = typeof arg2 === 'object';
 
-	let vars = typeof arg2 === 'object'
+	let name = getUid(has_contract ? arg3 : arg2);
+
+	let vars = has_contract
 		? createGlobalTheme(name, arg1, arg2)
 		: createGlobalTheme(name, arg1);
 
