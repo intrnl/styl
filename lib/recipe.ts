@@ -109,7 +109,8 @@ export function recipe<Variants extends VariantGroups> (
 			let classname = variant_classes[variant][selection];
 
 			if (classname) {
-				result += ' ' + classname;
+				result && (result += ' ')
+				result += classname;
 			}
 		}
 
@@ -129,7 +130,8 @@ export function recipe<Variants extends VariantGroups> (
 				}
 			}
 
-			result += ' ' + classname;
+			result && (result += ' ')
+			result += classname;
 		}
 
 		return result;
