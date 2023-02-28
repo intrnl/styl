@@ -8,14 +8,11 @@
 	"repository": {
 		"url": "https://github.com/intrnl/styl"
 	},
-	"source": "lib/index.ts",
-	"main": "dist/styl.js",
-	"module": "dist/styl.mjs",
+	"main": "dist/index.js",
 	"types": "types/index.d.ts",
 	"sideEffects": false,
 	"files": [
 		"dist/",
-		"types/",
 		"README.md"
 	],
 	"scripts": {
