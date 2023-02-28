@@ -1,12 +1,11 @@
-import { type AtRule, type Properties } from 'csstype';
+import { type Properties } from 'csstype';
 import { clone_object, get, to_kebab, walk_object } from './utils.js';
-
-import { nanoid } from 'nanoid/non-secure';
 
 // https://github.com/preactjs/preact/issues/2607
 let nondimensional_re =
 	/^(-|f[lo].*[^se]$|g.{5,}[^ps]$|z|o[pr]|(W.{5})?[lL]i.*(t|mp)$|an|(bo|s).{4}Im|sca|m.{6}[ds]|ta|c.*[st]$|wido|ini)/;
 
+let uid = 0;
 let sheet_id = '_styl';
 
 let container_prefix = 'o';
@@ -98,7 +97,7 @@ export type KeyframesRule = {
 export type ComplexStyleRule = StyleRule | Array<string | StyleRule>;
 
 function createId (prefix: string) {
-	return prefix + nanoid(8);
+	return prefix + (uid++).toString(36);
 }
 
 export function createContainer () {
