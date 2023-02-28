@@ -280,7 +280,9 @@ function compile_css (
 		}
 		else if (property === 'selectors') {
 			for (let selector in value) {
-				outer_styles += compile_css(selector.replaceAll('&', id), value as StyleRule, 0);
+				let decl = value[selector];
+
+				outer_styles += compile_css(selector.replaceAll('&', id), decl, 0);
 			}
 		}
 		else if (property === 'vars') {
