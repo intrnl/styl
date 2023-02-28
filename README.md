@@ -2,40 +2,99 @@
 
 Lightweight CSS-in-JS runtime
 
-## Installation
-
-- Install it with your package manager of choice
-  - npm: `npm i @intrnl/styl`
-  - pnpm: `pnpm i @intrnl/styl`
-  - yarn: `yarn add @intrnl/styl`
-
 ## Usage
 
 ```js
-import { css, keyframes } from '@intrnl/styl';
+import { keyframes, style } from '@intrnl/styl';
 
-let fade_in = keyframes({
-  'from': {
-    opacity: 0,
-  },
-  'to': {
-    opacity: 1,
-  },
+let fadeIn = keyframes({
+	'from': {
+		opacity: 0,
+	},
+	'to': {
+		opacity: 1,
+	},
 });
 
-let button_css = css({
-  backgroundColor: 'red',
+let button = style({
+	backgroundColor: 'red',
 
-  '&:hover': {
-    backgroundColor: 'blue',
-  },
-  '@media (prefers-reduced-motion: no-preference)': {
-    animation: `${fade_in} .2s ease`,
-  },
+	'&:hover': {
+		backgroundColor: 'blue',
+	},
+	'@media (prefers-reduced-motion: no-preference)': {
+		animation: `${fade_in} .2s ease`,
+	},
 });
 ```
 
-## SSR
+### Theming
 
-You can get the CSS by calling `extract` function, but this requires your `css`
-and `keyframes` call to be within the component itself rather than outside.
+```js
+import { createTheme, createThemeContract, style } from '@intrnl/styl';
+
+let theme = createThemeContract({
+	palette: {
+		black: null,
+		white: null,
+		red: null,
+	},
+});
+
+let themeClass = createTheme(theme, {
+	palette: {
+		black: '#000',
+		white: '#fff',
+		red: '#f00',
+	},
+});
+
+let Button = style({
+	backgroundColor: theme.palette.black,
+});
+```
+
+### Recipes
+
+```js
+import { recipe } from '@intrnl/styl';
+
+let Button = recipe({
+	base: {
+		borderRadius: 6,
+	},
+
+	variants: {
+		color: {
+			neutral: { background: 'whitesmoke' },
+			brand: { background: 'blueviolet' },
+			accent: { background: 'slateblue' },
+		},
+		size: {
+			small: { padding: 12 },
+			medium: { padding: 16 },
+			large: { padding: 24 },
+		},
+		rounded: {
+			true: { borderRadius: 999 },
+		},
+	},
+
+	compoundVariants: [
+		{
+			variants: {
+				color: 'neutral',
+				size: 'large',
+			},
+			style: {
+				background: 'ghostwhite',
+			},
+		},
+	],
+
+	defaultVariants: {
+		color: 'accent',
+		size: 'medium',
+	},
+});
+```
