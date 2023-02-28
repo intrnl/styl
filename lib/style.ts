@@ -250,9 +250,20 @@ export function createTheme (arg1: any, arg2?: any): any {
 	return vars ? [name, vars] : name;
 }
 
-function append_style (style: string) {
+let queued = '';
+
+function flush_style () {
 	let sheet = get_sheet();
-	sheet.textContent += style;
+	sheet.textContent += queued;
+	queued = '';
+}
+
+function append_style (style: string) {
+	if (!queued && style) {
+		requestAnimationFrame(flush_style);
+	}
+
+	queued += style;
 }
 
 function get_sheet () {
