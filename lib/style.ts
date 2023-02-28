@@ -7,14 +7,7 @@ import { clone_object, get, to_kebab, walk_object } from './utils.js';
 let nondimensional_re =
 	/^(-|f[lo].*[^se]$|g.{5,}[^ps]$|z|o[pr]|(W.{5})?[lL]i.*(t|mp)$|an|(bo|s).{4}Im|sca|m.{6}[ds]|ta|c.*[st]$|wido|ini)/;
 
-let uid = 0;
 let sheet_id = '_styl';
-
-let container_prefix = 'o';
-let css_prefix = 'c';
-let keyframes_prefix = 'k';
-let theme_prefix = 't';
-let var_prefix = 'v';
 
 export type CSSVarFunction = `var()`;
 
