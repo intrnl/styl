@@ -92,7 +92,7 @@ export interface StyleWithSelectors extends CSSPropertiesWithVars {
 export type StyleRule = StyleWithSelectors & WithQueries<StyleWithSelectors>;
 
 export type KeyframesRule = {
-	[transition: string]: CSSProperties;
+	[transition: string]: CSSPropertiesWithVars;
 };
 
 export type ComplexStyleRule = StyleRule | Array<string | StyleRule>;
@@ -322,15 +322,25 @@ function compile_keyframes (id: string, decl: KeyframesRule) {
 		for (let property in props) {
 			let value = (props as any)[property];
 
-			if (typeof value === 'number' && !nondimensional_re.test(property)) {
-				// @ts-expect-error
-				value += 'px';
+			if (property === 'vars') {
+				for (let k in value) {
+					let variable = k[0] === 'v' && k[3] === '(' ? k.slice(4, k.indexOf(',')) : k;
+					inner_styles += variable + ':' + value + ';';
+				}
 			}
+			else {
+				if (typeof value === 'number' && !nondimensional_re.test(property)) {
+					// @ts-expect-error
+					value += 'px';
+				}
 
-			inner_styles += to_kebab(property) + ':' + value + ';';
+				inner_styles += to_kebab(property) + ':' + value + ';';
+			}
 		}
 
-		styles += transition + '{' + inner_styles + '}';
+		if (inner_styles) {
+			styles += transition + '{' + inner_styles + '}';
+		}
 	}
 
 	return '@keyframes ' + id + '{' + styles + '}';
