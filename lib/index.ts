@@ -12,6 +12,7 @@ let sheet_id = '_styl';
 let var_prefix = 'v';
 let css_prefix = 'c';
 let keyframes_prefix = 'k';
+let container_prefix = 'o';
 
 export type StyleRule = {
 	[selector: `var(${string})`]: string;
@@ -25,8 +26,16 @@ export type KeyframesRule = {
 
 export type ComplexStyleRules = StyleRule | Array<string | StyleRule>;
 
+function createId (prefix: string) {
+	return prefix + nanoid(8);
+}
+
+export function createContainer () {
+	return /*@__INLINE__*/ createId(container_prefix);
+}
+
 export function createVar () {
-	return ('var(--' + var_prefix + nanoid(8) + ')') as `var()`;
+	return ('var(--' + /*@__INLINE__*/ createId(var_prefix) + ')') as `var()`;
 }
 
 export function style (args: ComplexStyleRules) {
@@ -59,14 +68,14 @@ export function globalStyle (selector: string, rule: StyleRule) {
 }
 
 function css (rule: StyleRule) {
-	let id = css_prefix + nanoid(8);
+	let id = /*@__INLINE__*/ createId(css_prefix);
 
 	globalStyle('.' + id, rule);
 	return id;
 }
 
 export function keyframes (rule: KeyframesRule) {
-	let id = keyframes_prefix + nanoid(8);
+	let id = /*@__INLINE__*/ createId(keyframes_prefix);
 	let style = compile_keyframes(id, rule);
 
 	appendStyle(style);
