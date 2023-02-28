@@ -1,5 +1,5 @@
 import type { Properties as CSSProperties } from 'csstype';
-import { toKebab } from './utils.js';
+import { clone_object, get, to_kebab, walk_object } from './utils.js';
 
 import { nanoid } from 'nanoid/non-secure';
 
@@ -9,10 +9,11 @@ let nondimensional_re =
 
 let sheet_id = '_styl';
 
-let var_prefix = 'v';
+let container_prefix = 'o';
 let css_prefix = 'c';
 let keyframes_prefix = 'k';
-let container_prefix = 'o';
+let theme_prefix = 't';
+let var_prefix = 'v';
 
 export type StyleRule = {
 	[selector: `var(${string})`]: string;
@@ -82,21 +83,90 @@ export function keyframes (rule: KeyframesRule) {
 	return id;
 }
 
+export interface NullableTokens {
+	[key: string]: string | NullableTokens | null;
+}
+
+export interface Tokens {
+	[key: string]: string | Tokens;
+}
+
+type Primitive = string | boolean | number | null | undefined;
+
+type MapLeafNodes<Obj, LeafType> = {
+	[Prop in keyof Obj]: Obj[Prop] extends Primitive ? LeafType
+		: Obj[Prop] extends Record<string | number, any> ? MapLeafNodes<Obj[Prop], LeafType>
+		: never;
+};
+
+export type ThemeVars<Contract extends NullableTokens = NullableTokens> = MapLeafNodes<
+	Contract,
+	ReturnType<typeof createVar>
+>;
+
+export function createThemeContract<Tokens extends NullableTokens> (tokens: Tokens): ThemeVars<Tokens> {
+	return clone_object(tokens, () => createVar());
+}
+
+export function assignVars<Contract extends ThemeVars> (
+	contract: Contract,
+	tokens: MapLeafNodes<Contract, string>,
+): Record<ReturnType<typeof createVar>, string> {
+	let setters: any = {};
+
+	walk_object(tokens, (value, path) => {
+		setters[get(contract, path)] = value;
+	});
+
+	return setters;
+}
+
+export function createGlobalTheme<ThemeTokens extends Tokens> (
+	selector: string,
+	tokens: ThemeTokens,
+): ThemeVars<ThemeTokens>;
+export function createGlobalTheme<ThemeContract extends ThemeVars<Tokens>> (
+	selector: string,
+	contract: ThemeContract,
+	tokens: MapLeafNodes<ThemeContract, string>,
+): void;
+export function createGlobalTheme (selector: string, arg2: any, arg3?: any) {
+	let create_vars = !arg3;
+
+	let theme_vars = create_vars ? createThemeContract(arg2) : (arg2 as ThemeVars<any>);
+	let tokens = create_vars ? arg2 : arg3;
+
+	globalStyle(selector, assignVars(theme_vars, tokens));
+
+	if (create_vars) {
+		return theme_vars;
+	}
+}
+
+export function createTheme<ThemeTokens extends Tokens> (
+	tokens: ThemeTokens,
+): [name: string, vars: ThemeVars<ThemeTokens>];
+export function createTheme<ThemeContract extends ThemeVars<Tokens>> (
+	contract: ThemeContract,
+	tokens: MapLeafNodes<ThemeContract, string>,
+): string;
+export function createTheme (arg1: any, arg2?: any): any {
+	let name = createId(theme_prefix);
+
+	let vars = typeof arg2 === 'object'
+		? createGlobalTheme(name, arg1, arg2)
+		: createGlobalTheme(name, arg1);
+
+	return vars ? [name, vars] : name;
+}
+
 function appendStyle (style: string) {
 	let sheet = getSheet();
 	sheet.textContent += style;
 }
 
-export function extract () {
-	let sheet = getSheet();
-	let out = sheet.textContent;
-
-	sheet.textContent = '';
-	return out;
-}
-
 function getSheet () {
-	return (window as any)[sheet_id]
+	return (globalThis as any)[sheet_id]
 		|| Object.assign(document.head.appendChild(document.createElement('style')), { id: sheet_id });
 }
 
@@ -129,7 +199,7 @@ function compile_css (
 				value += 'px';
 			}
 
-			inner_styles += toKebab(property) + ':' + value + ';';
+			inner_styles += to_kebab(property) + ':' + value + ';';
 		}
 	}
 
@@ -161,7 +231,7 @@ function compile_keyframes (id: string, decl: KeyframesRule) {
 				value += 'px';
 			}
 
-			inner_styles += toKebab(property) + ':' + value + ';';
+			inner_styles += to_kebab(property) + ':' + value + ';';
 		}
 
 		styles += transition + '{' + inner_styles + '}';
