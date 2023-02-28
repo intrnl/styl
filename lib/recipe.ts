@@ -64,12 +64,12 @@ export function recipe<Variants extends VariantGroups> (
 	}
 
 	return (props) => {
+		let result = base_class;
+		let combined_props: VariantSelection<Variants>;
+
 		if (!variant_classes) {
 			return base_class;
 		}
-
-		let result = base_class;
-		let combined_props: VariantSelection<Variants>;
 
 		if (defaultVariants) {
 			if (props) {
