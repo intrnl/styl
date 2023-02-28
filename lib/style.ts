@@ -286,7 +286,9 @@ function compile_css (
 		else if (property === 'vars') {
 			for (let k in value) {
 				let variable = k[0] === 'v' && k[3] === '(' ? k.slice(4, k.indexOf(',')) : k;
-				inner_styles += variable + ':' + value + ';';
+				let content = value[k];
+
+				inner_styles += variable + ':' + content + ';';
 			}
 		}
 		else {
@@ -325,7 +327,9 @@ function compile_keyframes (id: string, decl: KeyframesRule) {
 			if (property === 'vars') {
 				for (let k in value) {
 					let variable = k[0] === 'v' && k[3] === '(' ? k.slice(4, k.indexOf(',')) : k;
-					inner_styles += variable + ':' + value + ';';
+					let content = value[k];
+
+					inner_styles += variable + ':' + content + ';';
 				}
 			}
 			else {
