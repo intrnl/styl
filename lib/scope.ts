@@ -38,7 +38,5 @@ export function enterFileScope (hash: string, name?: string) {
 }
 
 export function leaveFileScope () {
-	if (has_scopes) {
-		scopes.pop();
-	}
+	scopes.pop();
 }
