@@ -125,7 +125,7 @@ export function createGlobalTheme<ThemeTokens extends Tokens> (
 	selector: string,
 	tokens: ThemeTokens,
 ): ThemeVars<ThemeTokens>;
-export function createGlobalTheme<ThemeContract extends ThemeVars<Tokens>> (
+export function createGlobalTheme<ThemeContract extends ThemeVars> (
 	selector: string,
 	contract: ThemeContract,
 	tokens: MapLeafNodes<ThemeContract, string>,
@@ -146,7 +146,7 @@ export function createGlobalTheme (selector: string, arg2: any, arg3?: any) {
 export function createTheme<ThemeTokens extends Tokens> (
 	tokens: ThemeTokens,
 ): [name: string, vars: ThemeVars<ThemeTokens>];
-export function createTheme<ThemeContract extends ThemeVars<Tokens>> (
+export function createTheme<ThemeContract extends ThemeVars> (
 	contract: ThemeContract,
 	tokens: MapLeafNodes<ThemeContract, string>,
 ): string;
