@@ -15,6 +15,8 @@ let keyframes_prefix = 'k';
 let theme_prefix = 't';
 let var_prefix = 'v';
 
+export type CSSVarFunction = `var()`;
+
 export type StyleRule = {
 	[selector: `var(${string})`]: string;
 	[selector: `${string}&${string}`]: StyleRule;
@@ -36,7 +38,11 @@ export function createContainer () {
 }
 
 export function createVar () {
-	return ('var(--' + /*@__INLINE__*/ createId(var_prefix) + ')') as `var()`;
+	return ('var(--' + /*@__INLINE__*/ createId(var_prefix) + ')') as CSSVarFunction;
+}
+
+export function fallbackVar (variable: CSSVarFunction, fallback: string) {
+	return (variable.slice(0, -1) + ', ' + fallback + ')') as CSSVarFunction;
 }
 
 export function style (args: ComplexStyleRule) {
@@ -118,7 +124,7 @@ type MapLeafNodes<Obj, LeafType> = {
 
 export type ThemeVars<Contract extends NullableTokens = NullableTokens> = MapLeafNodes<
 	Contract,
-	ReturnType<typeof createVar>
+	CSSVarFunction
 >;
 
 export function createThemeContract<Tokens extends NullableTokens> (tokens: Tokens): ThemeVars<Tokens> {
@@ -128,7 +134,7 @@ export function createThemeContract<Tokens extends NullableTokens> (tokens: Toke
 export function assignVars<Contract extends ThemeVars> (
 	contract: Contract,
 	tokens: MapLeafNodes<Contract, string>,
-): Record<ReturnType<typeof createVar>, string> {
+): Record<CSSVarFunction, string> {
 	let setters: any = {};
 
 	walk_object(tokens, (value, path) => {
