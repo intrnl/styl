@@ -1,4 +1,4 @@
-import type { Properties as CSSProperties } from 'csstype';
+import { type AtRule, type Properties } from 'csstype';
 import { clone_object, get, to_kebab, walk_object } from './utils.js';
 
 import { nanoid } from 'nanoid/non-secure';
@@ -17,11 +17,79 @@ let var_prefix = 'v';
 
 export type CSSVarFunction = `var()`;
 
-export type StyleRule = {
-	[selector: `var(${string})`]: string;
-	[selector: `${string}&${string}`]: StyleRule;
-	[selector: `@${string}`]: StyleRule;
-} & CSSProperties<string | number>;
+interface ContainerProperties {
+	container?: string;
+	containerType?: 'size' | 'inline-size' | (string & {});
+	containerName?: string;
+}
+
+type CSSTypeProperties =
+	& Properties<number | (string & {})>
+	& ContainerProperties;
+
+export type CSSProperties = {
+	[Property in keyof CSSTypeProperties]:
+		| CSSTypeProperties[Property]
+		| CSSVarFunction
+		| Array<CSSVarFunction | CSSTypeProperties[Property]>;
+};
+
+export interface CSSKeyframes {
+	[time: string]: CSSProperties;
+}
+
+export type CSSPropertiesWithVars = CSSProperties & {
+	vars?: {
+		[key: string]: string;
+	};
+};
+
+export interface MediaQueries<StyleType> {
+	'@media'?: {
+		[query: string]: StyleType;
+	};
+}
+
+export interface FeatureQueries<StyleType> {
+	'@supports'?: {
+		[query: string]: StyleType;
+	};
+}
+
+export interface ContainerQueries<StyleType> {
+	'@container'?: {
+		[query: string]: StyleType;
+	};
+}
+
+export type WithQueries<StyleType> =
+	& MediaQueries<
+		& StyleType
+		& FeatureQueries<StyleType & ContainerQueries<StyleType>>
+		& ContainerQueries<StyleType & FeatureQueries<StyleType>>
+	>
+	& FeatureQueries<
+		& StyleType
+		& MediaQueries<StyleType & ContainerQueries<StyleType>>
+		& ContainerQueries<StyleType & MediaQueries<StyleType>>
+	>
+	& ContainerQueries<
+		& StyleType
+		& MediaQueries<StyleType & FeatureQueries<StyleType>>
+		& FeatureQueries<StyleType & MediaQueries<StyleType>>
+	>;
+
+interface SelectorMap {
+	[selector: string]:
+		& CSSPropertiesWithVars
+		& WithQueries<CSSPropertiesWithVars>;
+}
+
+export interface StyleWithSelectors extends CSSPropertiesWithVars {
+	selectors?: SelectorMap;
+}
+
+export type StyleRule = StyleWithSelectors & WithQueries<StyleWithSelectors>;
 
 export type KeyframesRule = {
 	[transition: string]: CSSProperties;
@@ -159,7 +227,7 @@ export function createGlobalTheme (selector: string, arg2: any, arg3?: any) {
 	let theme_vars = create_vars ? createThemeContract(arg2) : (arg2 as ThemeVars<any>);
 	let tokens = create_vars ? arg2 : arg3;
 
-	globalStyle(selector, assignVars(theme_vars, tokens));
+	globalStyle(selector, { vars: assignVars(theme_vars, tokens) });
 
 	if (create_vars) {
 		return theme_vars;
@@ -202,19 +270,24 @@ function compile_css (
 	let outer_styles = '';
 
 	for (let property in decl) {
-		let value: any = decl[property as any];
+		// @ts-expect-error
+		let value: any = decl[property];
 
-		if (property.includes('&')) {
-			outer_styles += compile_css(property.replaceAll('&', id), value as StyleRule, 0);
+		if (property[0] == '@') {
+			for (let s in value) {
+				outer_styles += compile_css(id, value as StyleRule, property + ' ' + s);
+			}
 		}
-		else if (property[0] == '@') {
-			outer_styles += compile_css(id, value as StyleRule, property);
+		else if (property === 'selectors') {
+			for (let selector in value) {
+				outer_styles += compile_css(selector.replaceAll('&', id), value as StyleRule, 0);
+			}
 		}
-		else if (property[0] === 'v' && property[1] === 'a' && property[3] === '(') {
-			let idx = property.indexOf(',');
-			let variable = property.slice(4, idx);
-
-			inner_styles += variable + ':' + value + ';';
+		else if (property === 'vars') {
+			for (let k in value) {
+				let variable = k[0] === 'v' && k[3] === '(' ? k.slice(4, k.indexOf(',')) : k;
+				inner_styles += variable + ':' + value + ';';
+			}
 		}
 		else {
 			if (typeof value === 'number' && !nondimensional_re.test(property)) {
