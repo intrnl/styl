@@ -110,7 +110,7 @@ export function fallbackVar (variable: CSSVarFunction, fallback: string) {
 	return (variable.slice(0, -1) + ', ' + fallback + ')') as CSSVarFunction;
 }
 
-export function style (args: ComplexStyleRule) {
+export function style (args: ComplexStyleRule, debugName?: string) {
 	let result = '';
 
 	if (Array.isArray(args)) {
@@ -123,12 +123,12 @@ export function style (args: ComplexStyleRule) {
 				result += arg;
 			}
 			else {
-				result += css(arg);
+				result += css(arg, debugName);
 			}
 		}
 	}
 	else {
-		return css(args);
+		return css(args, debugName);
 	}
 
 	return result;
