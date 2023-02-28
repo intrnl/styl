@@ -88,7 +88,7 @@ export function styleVariants (data: any, mapper?: any) {
 
 export function globalStyle (selector: string, rule: StyleRule) {
 	let style = compile_css(selector, rule);
-	appendStyle(style);
+	append_style(style);
 }
 
 function css (rule: StyleRule) {
@@ -102,7 +102,7 @@ export function keyframes (rule: KeyframesRule) {
 	let id = /*@__INLINE__*/ createId(keyframes_prefix);
 	let style = compile_keyframes(id, rule);
 
-	appendStyle(style);
+	append_style(style);
 	return id;
 }
 
@@ -183,12 +183,12 @@ export function createTheme (arg1: any, arg2?: any): any {
 	return vars ? [name, vars] : name;
 }
 
-function appendStyle (style: string) {
-	let sheet = getSheet();
+function append_style (style: string) {
+	let sheet = get_sheet();
 	sheet.textContent += style;
 }
 
-function getSheet () {
+function get_sheet () {
 	return (globalThis as any)[sheet_id]
 		|| Object.assign(document.head.appendChild(document.createElement('style')), { id: sheet_id });
 }
