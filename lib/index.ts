@@ -13,8 +13,6 @@ let var_prefix = 'v';
 let css_prefix = 'c';
 let keyframes_prefix = 'k';
 
-let ssr = { textContent: '' };
-
 export type StyleRule = {
 	[selector: `var(${string})`]: string;
 	[selector: `${string}&${string}`]: StyleRule;
@@ -28,7 +26,7 @@ export type KeyframesRule = {
 export type ComplexStyleRules = StyleRule | Array<string | StyleRule>;
 
 export function createVar () {
-	return 'var(--' + var_prefix + nanoid(8) + ')';
+	return ('var(--' + var_prefix + nanoid(8) + ')') as `var()`;
 }
 
 export function style (args: ComplexStyleRules) {
