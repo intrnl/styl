@@ -19,7 +19,7 @@ export type StyleRule = {
 	[selector: `var(${string})`]: string;
 	[selector: `${string}&${string}`]: StyleRule;
 	[selector: `@${string}`]: StyleRule;
-} & CSSProperties;
+} & CSSProperties<string | number>;
 
 export type KeyframesRule = {
 	[transition: string]: CSSProperties;
